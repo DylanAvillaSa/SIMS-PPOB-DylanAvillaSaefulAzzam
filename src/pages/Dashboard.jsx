@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 import CustomCircle from "../components/element/CustomCircle";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { formatRupiah } from "../services/format_rupiah";
 import { Link } from "react-router-dom";
@@ -28,7 +27,7 @@ const fetchData = async (url, token) => {
 };
 
 const DashboardPage = () => {
-  const { token } = useSelector((state) => state.session);
+  const { token } = JSON.parse(localStorage.getItem("session"));
   const [dataBanner, setDataBanner] = useState([]);
   const [dataService, setDataService] = useState([]);
   const navigate = useNavigate();
@@ -48,12 +47,10 @@ const DashboardPage = () => {
     }
   }, [token, navigate]);
 
-  // Fetch profile and other data on mount
   useEffect(() => {
     const getProfileUser = async () => {
       setLoading(true);
       try {
-        // Fetch multiple data concurrently
         const [banner, service, saldo, profile] = await Promise.all([
           fetchData(`${import.meta.env.VITE_API_BASE_URL}/banner`, token),
           fetchData(`${import.meta.env.VITE_API_BASE_URL}/services`, token),
@@ -61,11 +58,9 @@ const DashboardPage = () => {
           fetchData(`${import.meta.env.VITE_API_BASE_URL}/profile`, token),
         ]);
 
-        // Set state with fetched data
         setDataBanner(banner.data);
         setDataService(service.data);
 
-        // Format balance and set it
         const formattedBalance = formatRupiah(saldo.data.balance);
         setBalance(formattedBalance);
 
