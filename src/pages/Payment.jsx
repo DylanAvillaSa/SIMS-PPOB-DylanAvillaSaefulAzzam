@@ -96,8 +96,8 @@ const PaymentPage = () => {
           <aside className='flex flex-col'>
             <img
               src={
-                userProfile.profile_image
-                  ? userProfile.profile_image
+                userProfile.profile_image.search("/null") == -1
+                  ? userProfile?.profile_image
                   : "/profil.png"
               }
               className='w-[65px] h-[65px] rounded-full object-cover'

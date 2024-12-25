@@ -97,12 +97,12 @@ const DashboardPage = () => {
 
   return (
     <main className='w-full min-h-screen flex flex-col gap-12'>
-      <section className='flex gap-32 items-center px-12 justify-center  mt-20  '>
+      <section className='flex gap-32 items-center px-12 justify-center  mt-20'>
         <div className='flex flex-col justify-center items-start gap-2'>
           <img
             src={
-              userProfile.profile_image
-                ? userProfile.profile_image
+              userProfile.profile_image.search("/null") == -1
+                ? userProfile?.profile_image
                 : "/profil.png"
             }
             className='w-[100px] h-[100px] rounded-full object-cover'

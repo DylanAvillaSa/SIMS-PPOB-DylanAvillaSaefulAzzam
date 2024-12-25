@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { formatRupiah } from "../../services/format_rupiah";
 import { converToRupiah } from "../../services/convert_to_rupiah";
+import { toastSuccess } from "../../utils/sweetAlert";
 
 const ModalTransactionConfirm = ({
   serviceData,
@@ -41,6 +42,7 @@ const ModalTransactionConfirm = ({
         const saldo = await res_saldo.json();
         const result_saldo = formatRupiah(saldo.data.balance);
         setBalance(result_saldo);
+        toastSuccess("Pembayaran berhasil");
       }
     } catch (err) {
       throw new Error(err);

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { IconEdit } from "../components/icon/CustomIcon";
-import { toastError } from "../utils/sweetAlert";
+import { toastError, toastSuccess } from "../utils/sweetAlert";
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/features/token/sessionSlice";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ const AccountPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isEdit, setIsEdit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { token } = JSON.parse(localStorage.getItem("session"));
   const [userProfile, setUserProfile] = useState({
     email: "",
@@ -20,7 +21,6 @@ const AccountPage = () => {
 
   const handleEditImage = () => {
     fileInputRef.current.click();
-    console.log(fileInputRef);
   };
 
   const handleChange = (e) => {
@@ -38,20 +38,41 @@ const AccountPage = () => {
 
     if (file) {
       const fileType = file.type;
-
-      if (fileType == "image/jpeg" || fileType === "image/png") {
-        console.log("File accepted", file);
-      } else {
+      if (fileType !== "image/jpeg" || fileType !== "image/png") {
         toastError();
         e.target.value = null;
       }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log(userProfile);
+    setIsLoading(true);
+    try {
+      const res_edit_user = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/profile/update`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            first_name: userProfile.first_name,
+            last_name: userProfile.last_name,
+          }),
+        }
+      );
+      const res = await res_edit_user.json();
+      if (res.message == "Sukses") {
+        toastSuccess("Berhasil mengubah profil");
+        setIsEdit(false);
+      }
+    } catch (err) {
+      throw new Error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -94,8 +115,8 @@ const AccountPage = () => {
           <div className='relative'>
             <img
               src={
-                userProfile.profile_image
-                  ? userProfile.profile_image
+                userProfile.profile_image.search("/null") == -1
+                  ? userProfile?.profile_image
                   : "/profil.png"
               }
               alt='Profile'

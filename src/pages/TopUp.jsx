@@ -69,7 +69,7 @@ const TopupPage = () => {
 
       const data = await res.json();
       if (data.message == "Top Up Balance berhasil") {
-        toastSuccess();
+        toastSuccess("Berhasil Top up");
         const res_saldo = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/balance`,
           {
@@ -99,8 +99,8 @@ const TopupPage = () => {
           <aside className='flex flex-col'>
             <img
               src={
-                userProfile.profile_image
-                  ? userProfile.profile_image
+                userProfile.profile_image.search("/null") == -1
+                  ? userProfile?.profile_image
                   : "/profil.png"
               }
               className='w-[85px] h-[85px] rounded-full object-cover'

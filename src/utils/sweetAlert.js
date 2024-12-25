@@ -19,11 +19,9 @@ export const toastError = () => {
   });
 };
 
-export const toastSuccess = (nominal) => {
+export const toastSuccess = (status) => {
   Swal.fire({
     icon: "success",
-    title: formatRupiah(nominal),
-    text: "Something went wrong!",
-    footer: '<a href="#">Why do I have this issue?</a>',
+    text: status,
   });
 };
