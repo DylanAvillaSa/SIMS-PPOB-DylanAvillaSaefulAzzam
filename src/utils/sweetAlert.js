@@ -27,6 +27,13 @@ export const toastSuccess = (status) => {
   });
 };
 
+export const toastSuccessRegister = (status) => {
+  Swal.fire({
+    icon: "success",
+    text: status,
+  });
+};
+
 export const toastFailure = (status) => {
   Swal.fire({
     icon: "error",

@@ -34,8 +34,11 @@ const LoginPage = () => {
 
   const handleUserLogin = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
+    setErrorStatus(false);
+
     try {
-      setLoading(true);
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/login`,
         {
@@ -47,21 +50,25 @@ const LoginPage = () => {
         }
       );
 
+      if (!response.ok) {
+        const errorMessage = `Login failed with status: ${response.status}`;
+        setErrorStatus(true);
+        throw new Error(errorMessage);
+      }
+
       const resultFromResponse = await response.json();
 
-      if (resultFromResponse.data === null) {
+      if (!resultFromResponse.data || !resultFromResponse.data.token) {
         setErrorStatus(true);
-      } else {
-        setErrorStatus(false);
-        dispatch(login(resultFromResponse.data.token));
-        if (resultFromResponse.data.token) {
-          navigate("/dashboard");
-        } else {
-          navigate("/");
-        }
+        return;
       }
+
+      dispatch(login(resultFromResponse.data.token));
+
+      navigate("/dashboard");
     } catch (err) {
-      throw new Error(err);
+      console.error("Login error:", err);
+      setErrorStatus(true);
     } finally {
       setLoading(false);
       setFormUser({

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { IconLock, IconShow, IconUser } from "../components/icon/CustomIcon";
 import { Link } from "react-router-dom";
-import { toastSuccess } from "../utils/sweetAlert";
+import { toastSuccess, toastSuccessRegister } from "../utils/sweetAlert";
 
 import AuthLayout from "../components/layout/AuthLayout";
 import AuthContainer from "../components/element/AuthContainer";
@@ -97,7 +97,7 @@ const RegisterPage = () => {
 
       const res = await res_register.json();
       if (res.status === 0) {
-        toastSuccess("Registrasi Berhasil");
+        toastSuccessRegister("Registrasi Berhasil");
       } else {
         setIsError(true);
         setMessageError(res.message || "Terjadi kesalahan, coba lagi");

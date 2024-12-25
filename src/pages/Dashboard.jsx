@@ -6,6 +6,27 @@ import { useNavigate } from "react-router-dom";
 import { formatRupiah } from "../services/format_rupiah";
 import { Link } from "react-router-dom";
 
+const fetchData = async (url, token) => {
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${url}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    throw new Error(error.message);
+  }
+};
+
 const DashboardPage = () => {
   const { token } = useSelector((state) => state.session);
   const [dataBanner, setDataBanner] = useState([]);
@@ -13,87 +34,63 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const [showSaldo, setShowSaldo] = useState(false);
   const [balance, setBalance] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [userProfile, setUserProfile] = useState({
     email: "",
     first_name: "",
     last_name: "",
     profile_image: "",
   });
-
   useEffect(() => {
     if (!token) {
       navigate("/");
     }
   }, [token, navigate]);
 
-  // hit ke endpoint
+  // Fetch profile and other data on mount
   useEffect(() => {
     const getProfileUser = async () => {
+      setLoading(true);
       try {
-        const res_banner = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/banner`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        // Fetch multiple data concurrently
+        const [banner, service, saldo, profile] = await Promise.all([
+          fetchData(`${import.meta.env.VITE_API_BASE_URL}/banner`, token),
+          fetchData(`${import.meta.env.VITE_API_BASE_URL}/services`, token),
+          fetchData(`${import.meta.env.VITE_API_BASE_URL}/balance`, token),
+          fetchData(`${import.meta.env.VITE_API_BASE_URL}/profile`, token),
+        ]);
 
-        const banner = await res_banner.json();
+        // Set state with fetched data
         setDataBanner(banner.data);
-        const res_service = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/services`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const service = await res_service.json();
         setDataService(service.data);
-        const res_saldo = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/balance`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const saldo = await res_saldo.json();
-        const result_saldo = formatRupiah(saldo.data.balance);
-        setBalance(result_saldo);
-        const res_profile = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/profile`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const dataUser = await res_profile.json();
-        const { email, first_name, last_name, profile_image } = dataUser.data;
-        setUserProfile((prevUser) => ({
-          ...prevUser,
-          email,
-          first_name,
-          last_name,
-          profile_image,
-        }));
+
+        // Format balance and set it
+        const formattedBalance = formatRupiah(saldo.data.balance);
+        setBalance(formattedBalance);
+
+        const { email, first_name, last_name, profile_image } = profile.data;
+        setUserProfile({ email, first_name, last_name, profile_image });
       } catch (err) {
-        throw new Error(err);
+        setError("Failed to load data");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    getProfileUser();
+    if (token) {
+      getProfileUser();
+    }
   }, [token]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <main className='w-full min-h-screen flex flex-col gap-12'>
