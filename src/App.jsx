@@ -6,6 +6,7 @@ import AccountPage from "./pages/Account";
 import NavigationBar from "./components/element/NavigationBar";
 import TopupPage from "./pages/TopUp";
 import PaymentPage from "./pages/Payment";
+import TransactionPage from "./pages/Transaction";
 
 const RooterApp = () => {
   const location = useLocation().pathname;
@@ -34,6 +35,10 @@ const RooterApp = () => {
         <Route
           path='/topup'
           element={<TopupPage />}
+        />
+        <Route
+          path='/transaction'
+          element={<TransactionPage />}
         />
         <Route
           path='/pembayaran/:service_code'
