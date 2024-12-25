@@ -1,15 +1,22 @@
 import { useState } from "react";
 import { IconLock, IconShow, IconUser } from "../components/icon/CustomIcon";
 import { Link } from "react-router-dom";
+import { toastSuccess } from "../utils/sweetAlert";
 
 import AuthLayout from "../components/layout/AuthLayout";
 import AuthContainer from "../components/element/AuthContainer";
 import FormHeader from "../components/element/FormHeader";
 
 const RegisterPage = () => {
+  const [emailError, setEmailError] = useState("");
+  const [firstNameError, setFirstNameError] = useState("");
+  const [lastNameError, setLastNameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [messageError, setMessageError] = useState("");
   const [formUser, setFormUser] = useState({
     email: "",
     first_name: "",
@@ -22,15 +29,53 @@ const RegisterPage = () => {
     const { name, value } = e.target;
     setFormUser((prevFromUser) => ({ ...prevFromUser, [name]: value }));
     setIsError(false);
+    setEmailError("");
+    setFirstNameError("");
+    setLastNameError("");
+    setPasswordError("");
+    setConfirmPasswordError("");
   };
 
   const handleUserRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
+    setEmailError("");
+    setFirstNameError("");
+    setLastNameError("");
+    setPasswordError("");
+    setConfirmPasswordError("");
+
+    let isValid = true;
+
+    if (!formUser.email || !/\S+@\S+\.\S+/.test(formUser.email)) {
+      setEmailError("Email tidak valid");
+      isValid = false;
+    }
+
+    if (!formUser.first_name) {
+      setFirstNameError("Nama depan tidak boleh kosong");
+      isValid = false;
+    }
+
+    if (!formUser.last_name) {
+      setLastNameError("Nama belakang tidak boleh kosong");
+      isValid = false;
+    }
+
+    if (!formUser.password || formUser.password.length < 8) {
+      setPasswordError("Password harus terdiri dari minimal 8 karakter");
+      isValid = false;
+    }
+
     if (formUser.password !== formUser.confirm_password) {
-      setIsError(true);
+      setConfirmPasswordError("Password tidak sama");
+      isValid = false;
+    }
+
+    if (!isValid) {
       setIsLoading(false);
-      return false;
+      return;
     }
 
     try {
@@ -51,7 +96,12 @@ const RegisterPage = () => {
       );
 
       const res = await res_register.json();
-      console.log(res);
+      if (res.status === 0) {
+        toastSuccess("Registrasi Berhasil");
+      } else {
+        setIsError(true);
+        setMessageError(res.message || "Terjadi kesalahan, coba lagi");
+      }
     } catch (err) {
       throw new Error(err);
     } finally {
@@ -86,6 +136,9 @@ const RegisterPage = () => {
               onChange={handleChange}
             />
             <p className='absolute opacity-35 top-1.5 left-1.5'>@</p>
+            {emailError && (
+              <p className='text-red-500 text-xs mt-2 self-end'>{emailError}</p>
+            )}
           </div>
 
           <div className='w-1/2 relative'>
@@ -98,6 +151,11 @@ const RegisterPage = () => {
               onChange={handleChange}
             />
             <IconUser />
+            {firstNameError && (
+              <p className='text-red-500 text-xs mt-2 self-end'>
+                {firstNameError}
+              </p>
+            )}
           </div>
 
           <div className='w-1/2 relative'>
@@ -110,6 +168,11 @@ const RegisterPage = () => {
               onChange={handleChange}
             />
             <IconUser />
+            {lastNameError && (
+              <p className='text-red-500 text-xs mt-2 self-end'>
+                {lastNameError}
+              </p>
+            )}
           </div>
 
           <div className='w-1/2 relative flex flex-col'>
@@ -122,6 +185,11 @@ const RegisterPage = () => {
               className={`border py-2 px-7 w-full opacity-75 rounded outline-none text-sm `}
             />
             <IconLock />
+            {passwordError && (
+              <p className='text-red-500 text-xs mt-2 self-end'>
+                {passwordError}
+              </p>
+            )}
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -143,9 +211,9 @@ const RegisterPage = () => {
               }`}
             />
             <IconLock />
-            {isError && (
+            {confirmPasswordError && (
               <p className='text-red-500 text-xs mt-2 self-end'>
-                Password tidak sama
+                {confirmPasswordError}
               </p>
             )}
             <button
