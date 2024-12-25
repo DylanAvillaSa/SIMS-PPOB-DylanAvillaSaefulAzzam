@@ -11,6 +11,7 @@ const AccountPage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { token } = JSON.parse(localStorage.getItem("session"));
+  const [userImage, setUserImage] = useState(null);
   const [userProfile, setUserProfile] = useState({
     email: "",
     first_name: "",
@@ -38,8 +39,13 @@ const AccountPage = () => {
 
     if (file) {
       const fileType = file.type;
-      if (fileType !== "image/jpeg" || fileType !== "image/png") {
-        toastError();
+      const fileSize = file.size / 1024;
+      if (fileType == "image/jpeg" || fileType == "image/png") {
+        setUserImage(e.target.files[0]);
+      } else if (fileSize > 100) {
+        toastError("Maksimal ukuran : 100 kb");
+      } else {
+        toastError("Gambar harus : Jpeg dan Png");
         e.target.value = null;
       }
     }
@@ -48,7 +54,29 @@ const AccountPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    const formData = new FormData();
+    formData.append("file", userImage);
     try {
+      const edit_image = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/profile/image`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+      const res_gambar = await edit_image.json();
+      const newProfileImage = res_gambar.data.profile_image;
+
+      if (res_gambar.message == "Update Profile Image berhasil") {
+        setUserProfile((prevProfile) => ({
+          ...prevProfile,
+          profile_image: newProfileImage,
+        }));
+      }
+
       const res_edit_user = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/profile/update`,
         {
@@ -200,9 +228,11 @@ const AccountPage = () => {
         )}
         {isEdit ? (
           <button
-            className='bg-red-500 p-2 text-sm rounded text-white'
+            className={`bg-red-500 p-2 text-sm rounded text-white ${
+              isLoading && "opacity-35"
+            }`}
             type='submit'>
-            Simpan
+            {isLoading ? "Menunggu" : "Simpan"}
           </button>
         ) : (
           <button

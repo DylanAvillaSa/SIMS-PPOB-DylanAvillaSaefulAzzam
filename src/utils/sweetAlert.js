@@ -1,7 +1,7 @@
 import Swal from "sweetalert2";
 import { formatRupiah } from "../services/format_rupiah";
 
-export const toastError = () => {
+export const toastError = (text) => {
   const Toast = Swal.mixin({
     toast: true,
     position: "top-end",
@@ -15,7 +15,7 @@ export const toastError = () => {
   });
   Toast.fire({
     icon: "error",
-    title: "format harus jpeg , png",
+    title: text,
   });
 };
 
