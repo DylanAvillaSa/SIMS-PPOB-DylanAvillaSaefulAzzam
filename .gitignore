@@ -13,6 +13,7 @@ dist-ssr
 *.local
 
 
+dist/
 # File environment variables
 .env
 # Editor directories and files
