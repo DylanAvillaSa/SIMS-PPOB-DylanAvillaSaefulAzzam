@@ -68,9 +68,9 @@ const AccountPage = () => {
         }
       );
       const res_gambar = await edit_image.json();
-      const newProfileImage = res_gambar.data.profile_image;
 
       if (res_gambar.message == "Update Profile Image berhasil") {
+        const newProfileImage = res_gambar.data.profile_image;
         setUserProfile((prevProfile) => ({
           ...prevProfile,
           profile_image: newProfileImage,
