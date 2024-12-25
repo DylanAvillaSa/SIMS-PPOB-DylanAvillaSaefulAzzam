@@ -54,7 +54,6 @@ const LoginPage = () => {
       } else {
         setErrorStatus(false);
         dispatch(login(resultFromResponse.data.token));
-        console.log(resultFromResponse);
         if (resultFromResponse.data.token) {
           navigate("/dashboard");
         } else {
