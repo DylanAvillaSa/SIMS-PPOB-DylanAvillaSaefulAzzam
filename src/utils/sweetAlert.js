@@ -23,5 +23,14 @@ export const toastSuccess = (status) => {
   Swal.fire({
     icon: "success",
     text: status,
+    footer: `<a href="/dashboard" style="font-size:16px">kembali ke beranda<a/>`,
+  });
+};
+
+export const toastFailure = (status) => {
+  Swal.fire({
+    icon: "error",
+    text: status,
+    footer: `<a href="/dashboard" style="font-size:16px">kembali ke beranda<a/>`,
   });
 };

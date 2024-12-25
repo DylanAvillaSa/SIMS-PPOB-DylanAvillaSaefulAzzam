@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { formatRupiah } from "../../services/format_rupiah";
 import { converToRupiah } from "../../services/convert_to_rupiah";
-import { toastSuccess } from "../../utils/sweetAlert";
+import { toastFailure, toastSuccess } from "../../utils/sweetAlert";
 
 const ModalTransactionConfirm = ({
   serviceData,
@@ -16,16 +16,23 @@ const ModalTransactionConfirm = ({
       const res_transaction = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/transaction`,
         {
-          method: "POSt",
+          method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ service_code: serviceData.service_code }),
         }
       );
 
+      if (!res_transaction.ok) {
+        const errorMessage = await res_transaction.json();
+        toastFailure(errorMessage.message);
+        setIsOpenModal(false);
+      }
+
       const result_transaction = await res_transaction.json();
+
       if (result_transaction.message == "Transaksi berhasil") {
         setIsOpenModal(false);
         const res_saldo = await fetch(
@@ -42,10 +49,14 @@ const ModalTransactionConfirm = ({
         const saldo = await res_saldo.json();
         const result_saldo = formatRupiah(saldo.data.balance);
         setBalance(result_saldo);
+
         toastSuccess("Pembayaran berhasil");
+      } else {
+        toastFailure(`saldo tidak mencukupi`);
+        setIsOpenModal(false);
       }
     } catch (err) {
-      throw new Error(err);
+      return false;
     }
   };
   return (
