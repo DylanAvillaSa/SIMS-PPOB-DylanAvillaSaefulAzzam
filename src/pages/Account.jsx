@@ -152,6 +152,7 @@ const AccountPage = () => {
             />
             <input
               ref={fileInputRef}
+              autoComplete='off'
               type='file'
               className='hidden'
               accept='image/jpeg, image/png'
@@ -178,6 +179,7 @@ const AccountPage = () => {
             type='email'
             id='email'
             name='email'
+            autoComplete='off'
             disabled={!isEdit ? true : false}
             className='border w-full p-2 rounded text-xs opacity-65'
             onChange={handleChange}
@@ -194,6 +196,7 @@ const AccountPage = () => {
             type='first_name'
             id='first_name'
             name='first_name'
+            autoComplete='off'
             disabled={!isEdit ? true : false}
             className='border w-full p-2 rounded text-xs opacity-65'
             onChange={handleChange}
@@ -210,6 +213,7 @@ const AccountPage = () => {
             type='last_name'
             disabled={!isEdit ? true : false}
             id='last_name'
+            autoComplete='off'
             name='last_name'
             className='border w-full p-2 rounded text-xs opacity-65'
             onChange={handleChange}
@@ -218,7 +222,14 @@ const AccountPage = () => {
         </label>
 
         {isEdit ? (
-          ""
+          <button
+            className='border-red-500 text-red-500 border p-2 text-sm rounded'
+            onClick={(e) => {
+              e.preventDefault();
+              setIsEdit(false);
+            }}>
+            Batalkan
+          </button>
         ) : (
           <button
             className='border-red-500 text-red-500 border p-2 text-sm rounded'
@@ -245,8 +256,6 @@ const AccountPage = () => {
             Logout
           </button>
         )}
-
-        <button></button>
       </form>
     </section>
   );
